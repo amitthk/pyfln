@@ -34,6 +34,7 @@ class AppAuth:
             '(uid={})'.format(username)
             )
         if not result:
+            print 'User doesn\'t exist'
             return False
         dn = result[0][0]
         try:
