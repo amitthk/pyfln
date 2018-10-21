@@ -6,19 +6,18 @@ from functools import wraps
 
 import flask_restplus
 
-from flask import Flask, request, abort, Response, jsonify, url_for
+from flask import Flask, request, abort, Response, jsonify, url_for, session
 from flask_restplus import Api, Resource, fields, reqparse
 
 from AppAuth import AppAuth
+from config import AppConfig
 
 DEBUG = True
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config['SECRET_KEY'] = '1230947fadsfad;slk78412;ewlsd'
-app.config['LDAP_TOP_DN'] = 'ou=People,dc=amitthk,dc=com'
-app.config['LDAP_AUTH_SERVER'] = 'ldap://localhost:389/'
-
+app.config.from_object('config.AppConfig')
+app.config.from_pyfile(os.path.join(".", "config/env.cfg"), silent=False)
 
 config = configparser.ConfigParser
 
@@ -50,12 +49,15 @@ class AuthToken(Resource):
         login_m = api.payload
         user = str(login_m['username'])
         passwd = str(login_m['password'])
-        if AppAuth.verify_password(user,passwd):
+        if AppAuth.verify_password(app, user,passwd) is not None:
             session['logged_in'] = True
             return {'Basic': str(AppAuth.generate_auth_token(app, user))}
         else:
             error = 'Invalid Credentials, please try again later!'
             return authenticate()
+    def get(self):
+        session['logged_in']=False
+        return Response(json.dumps({ 'status': 200, 'message': 'You are successfully logged out!'}),200)
 @ns.route("/index")
 class Home(Resource):
     method_decorators=[must_auth]
@@ -65,12 +67,12 @@ class Home(Resource):
 def authenticate():
     message = {
         'error': 'unauthorized',
-        'message': 'Please authenticate with a valid token',
-        'status': 401
+        'message': 'Invalid Credentials, please try again later!',
+        'status': 403
         }
     response = Response(
         json.dumps(message),
-        401,
+        403,
         {
             'WWW-Authenticate': 'Basic realm="Authentication Required"',
             'Location': url_for('pyfln_auth_token')

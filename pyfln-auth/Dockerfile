@@ -12,5 +12,5 @@ RUN chmod 0755 ${APP_HOME}/uid_entrypoint && \
 EXPOSE 80
 
 WORKDIR ${APP_HOME}
-ENTRYPOINT ["${APP_HOME}/uid_entrypoint"]
-CMD ["gunicorn","-b","80","wsgi:app"]
+ENTRYPOINT ["./uid_entrypoint"]
+CMD ["gunicorn","-b","0.0.0.0:80","wsgi:app"]
