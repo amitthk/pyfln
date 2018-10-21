@@ -1,18 +1,23 @@
-FROM httpd:2.4.35-alpine
+FROM centos:7
 
-ARG APP_NAME=jvcdp-ui
-ARG APP_BASE_DIR=/usr/local/apache2/htdocs
+ARG APP_NAME=pyfln-ui
+ARG APP_BASE_DIR=/var/www/html
+ARG API_ENDPOINT=http://127.0.0.1:8000
 ENV APP_BASE_DIR $APP_BASE_DIR
 ENV APP_NAME ${APP_NAME}
+ENV API_ENDPOINT ${API_ENDPOINT}
 
+RUN yum install -y httpd httpd-tools
+
+
+COPY httpd/default-site.conf /etc/httpd/conf.d/default-site.conf
 COPY ./dist/ $APP_BASE_DIR/
 COPY entrypoint.sh $APP_BASE_DIR/
 #RUN  chown -R www-data:www-data $APP_BASE_DIR/ && \
-RUN  apk add openrc --no-cache && \   
-     chmod -R 0775 $APP_BASE_DIR
+RUN     chmod -R 0775 $APP_BASE_DIR
 
 EXPOSE 80
 WORKDIR $APP_BASE_DIR
 #USER www-data
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["/usr/local/bin/httpd-foreground"]
+CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
