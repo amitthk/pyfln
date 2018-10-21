@@ -9,8 +9,8 @@ COPY uid_entrypoint ${APP_HOME}
 
 RUN chmod 0755 ${APP_HOME}/uid_entrypoint && \
     python -m pip install -r ${APP_HOME}/requirements.txt
-EXPOSE 8000
+EXPOSE 80
 
 WORKDIR ${APP_HOME}
 ENTRYPOINT ["${APP_HOME}/uid_entrypoint"]
-CMD ["gunicorn","${APP_HOME}","app:app"]
+CMD ["gunicorn","-b","80","wsgi:app"]
