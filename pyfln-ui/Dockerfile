@@ -9,8 +9,8 @@ ENV API_ENDPOINT ${API_ENDPOINT}
 
 RUN yum install -y httpd httpd-tools
 
-COPY httpd/httpd.conf /etc/httpd/conf/
-COPY httpd/default-site.conf /etc/httpd/conf.d/default-site.conf
+COPY files/httpd/httpd.conf /etc/httpd/conf/
+COPY files/httpd/default-site.conf /etc/httpd/conf.d/default-site.conf
 COPY ./dist/ $APP_BASE_DIR/
 COPY entrypoint.sh $APP_BASE_DIR/
 #RUN  chown -R www-data:www-data $APP_BASE_DIR/ && \
