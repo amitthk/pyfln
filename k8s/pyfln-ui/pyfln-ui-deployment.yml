@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata: 
+  generation: 5
+  labels:
+    __APP_NAME__
+  name: __APP_NAME__-dc
+  namespace: __PROJECT_NAME__
+spec:
+  replicas: 1
+  selector:
+    app: __APP_NAME__
+    deploymentconfig: __APP_NAME__
+  template:
+    metadata:
+      labels:
+        app: __APP_NAME__
+        deploymentconfig: __APP_NAME__-dc
+      spec:
+        containers:
+          - image: >-
+              __IMAGE__
+            env:
+            - name: API_ENDPOINT
+              value: "http://pyfln-authapi:8000/"
+            name: __APP_NAME__
+            ports:
+              - containerPort: 8080

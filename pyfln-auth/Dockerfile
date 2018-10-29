@@ -29,28 +29,28 @@ ENV PKG_CONFIG_PATH /opt/rh/python27/root/usr/lib64/pkgconfig:/opt/rh/httpd24/ro
 
 
 
-ARG PIP_INDEX=https://atksv.mywire.org:8993/nexus/repository/pypi-all/simple
-ENV PIP_INDEX ${PIP_INDEX}
+# ARG PIP_INDEX=https://atksv.mywire.org:8993/nexus/repository/pypi-all/simple
+# ENV PIP_INDEX ${PIP_INDEX}
 
 USER root
 
 COPY files /tmp/
 
 RUN groupadd -g 10000 pyflnuser && \
-  useradd --no-log-init -u 10000 -g pyflnuser -ms /bin/bash pyflnuser && \
-  mkdir -p ~/.pip && cp /tmp/pip/pip.conf ~/.pip/pip.conf && \
-  cp /tmp/atksv.repo /etc/yum.repos.d/ && \
-  update-ca-trust force-enable
+    useradd --no-log-init -u 10000 -g pyflnuser -ms /bin/bash pyflnuser
+#   mkdir -p ~/.pip && cp /tmp/pip/pip.conf ~/.pip/pip.conf && \
+#   cp /tmp/atksv.repo /etc/yum.repos.d/ && \
+#   update-ca-trust force-enable
 
 RUN yum downgrade -y glibc glibc-common glibc-devel glibc-headers && \
   yum install -y gcc unzip python-setuptools python-ldap
 
 COPY app ${APP_HOME}/
 
-RUN bash -c 'cd ${APP_HOME} && python -m pip install -r requirements.txt'
+RUN bash -c "cd ${APP_HOME} && python -m pip install -r requirements.txt"
 
 RUN cp /tmp/uid_entrypoint ${APP_HOME}/ && \
-  chmod -r 0777 ${APP_HOME} && \
+  chmod -R 0777 ${APP_HOME} && \
   chown -R pyflnuser:pyflnuser ${APP_HOME} && \
   chmod -R g=u /etc/passwd
 
