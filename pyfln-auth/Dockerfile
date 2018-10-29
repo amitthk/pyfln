@@ -39,8 +39,8 @@ COPY files /tmp/
 RUN groupadd -g 10000 pyflnuser && \
     useradd --no-log-init -u 10000 -g pyflnuser -ms /bin/bash pyflnuser &&\
     rm /etc/yum.repos.d/Cen* && \
-    cp /tmp/centos.repo /etc/yum.repos.d/ && \
-    update-ca-trust force-enable
+    cp /tmp/centos.repo /etc/yum.repos.d/
+ #   update-ca-trust force-enable
 #   mkdir -p ~/.pip && cp /tmp/pip/pip.conf ~/.pip/pip.conf && \
 
 
