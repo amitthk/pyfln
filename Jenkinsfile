@@ -110,6 +110,8 @@ stages{
         steps{
         sh'''
         gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
+        gcloud config set compute/zone asia-southeast1-a
+        gcloud config set compute/region asia-southeast1
         gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
         
         chmod +x $BASE_DIR/k8s/process_files.sh

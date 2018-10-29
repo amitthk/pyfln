@@ -1,29 +1,23 @@
-apiVersion: v1
-kind: DeploymentConfig
-metadata: 
-  generation: 5
-  labels:
-    __APP_NAME__
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
   name: __APP_NAME__-dc
-  namespace: __PROJECT_NAME__
 spec:
   replicas: 1
-  selector:
-    app: __APP_NAME__
-    deploymentconfig: __APP_NAME__
   template:
     metadata:
       labels:
         app: __APP_NAME__
-        deploymentconfig: __APP_NAME__-dc
-      spec:
-        containers:
-          - image: >-
-              __IMAGE__
-            env:
-            - name: UI_ENDPOINT
-              value: "http://pyfln-ui:8080/"
-            name: __APP_NAME__
-            ports:
-              containerPort: 8000
+    spec:
+      containers:
+      - name: __APP_NAME__-ctr
+        image: >-
+          __IMAGE__
+        ports:
+        - name: pyfln-auth-port
+          containerPort: 8000
+        env:
+          - name: UI_ENDPOINT
+            value: "http://pyfln-ui:8080/"
+
 
