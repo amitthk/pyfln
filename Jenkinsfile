@@ -7,6 +7,8 @@ environment {
     GIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
 }
 
+agent any
+
 stages{
     stage('Init'){
         steps{
@@ -32,10 +34,12 @@ stages{
     }
 
     stage('Cleanup'){
-        sh '''
-        docker rmi $(docker images -f 'dangling=true' -q) || true
-        docker rmi ($docker images | sed 1,2d | awk '{print $3}') || true
-        '''
+        steps{
+            sh '''
+            docker rmi $(docker images -f 'dangling=true' -q) || true
+            docker rmi ($docker images | sed 1,2d | awk '{print $3}') || true
+            '''
+        }
 
     }
     stage('Build-api'){
