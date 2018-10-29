@@ -81,7 +81,7 @@ stages{
         steps{
             withEnv(["APP_NAME=${APP_NAME}", "PROJECT_NAME=${PROJECT_NAME}"]){
                 sh '''
-                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_authapi:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}_authapi  -f pyfln-auth/Dockerfile pyfln-auth/.
+                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}_authapi  -f pyfln-auth/Dockerfile pyfln-auth/.
                 '''
             }   
         }
@@ -90,7 +90,7 @@ stages{
         steps{
             withEnv(["APP_NAME=${APP_NAME}", "PROJECT_NAME=${PROJECT_NAME}"]){
                 sh '''
-                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_ui:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}-ui  -f pyfln-ui/Dockerfile pyfln-ui/.
+                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}-ui  -f pyfln-ui/Dockerfile pyfln-ui/.
                 '''
             }   
         }
@@ -100,7 +100,7 @@ stages{
             withCredentials([usernamePassword(credentialsId: "${env.JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD')]){
             sh '''
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWD ${DOCKER_REGISTRY_URL}
-            docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_UI:${RELEASE_TAG}
+            docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}
             docker logout
             '''
         }
@@ -115,10 +115,10 @@ stages{
         chmod +x $BASE_DIR/k8s/process_files.sh
 
         cd $BASE_DIR/k8s/.
-        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
+        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
         
         cd $BASE_DIR/k8s/pyfln-auth
-        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
+        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
         cd $BASE_DIR/k8s/pyfln-ui/.
         kubectl create -f ./*.yml
