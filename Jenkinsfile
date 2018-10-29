@@ -73,6 +73,8 @@ stages{
         gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
         gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
         
+        chmod +x $BASE_DIR/k8s/process_files.sh
+
         cd $BASE_DIR/k8s/.
         ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
         
