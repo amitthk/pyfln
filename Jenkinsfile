@@ -70,14 +70,14 @@ stages{
     stage('Deploy'){
         steps{
         sh'''
-        #gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
+        gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
         gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
         
         cd $BASE_DIR/k8s/.
-        ./process_files.sh "$DOCKER_PROJECT_NAME" "$APP_NAME" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
+        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
         
         cd $BASE_DIR/k8s/pyfln-auth
-        ./process_files.sh "$DOCKER_PROJECT_NAME" "$APP_NAME" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
+        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${IMAGE_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
         cd $BASE_DIR/k8s/pyfln-ui/.
         kubectl create -f ./*.yml
@@ -85,7 +85,7 @@ stages{
         cd $BASE_DIR/k8s/pyfln-auth/.
         kubectl create -f ./*.yml
 
-        #gcloud auth revoke --all
+        gcloud auth revoke --all
         '''
         }
     }
