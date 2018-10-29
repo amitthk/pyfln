@@ -96,4 +96,16 @@ stages{
         }
     }
 }
+
+post {
+    always {
+        emailext(attachLog: true,
+        mimeType: 'text/html',
+        body: '''
+        '''
+        recipientProviders: [[$class: "FirstFailingBuildSusspectRecipientProvider"]],
+        subject: "Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}",
+        to: "e.amitthakur@gmail.com")
+    }
+}
 }
