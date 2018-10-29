@@ -134,15 +134,16 @@ stages{
 
 post {
     always {
-        emailext(attachLog: true,
-        mimeType: 'text/html',
-        body: '''
-        <h2>Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}</h2>
-        <p>Check console output at &QUOT;<a href='${env.BUILD_URL'>${env.JOB_NAME} - [${env.BUILD_NUMBER}]</a>&QUOT;</p>
-        ''',
-        recipientProviders: [[$class: "FirstFailingBuildSusspectRecipientProvider"]],
-        subject: "Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}",
-        to: "e.amitthakur@gmail.com")
+        echo "Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}"
+        // emailext(attachLog: true,
+        // mimeType: 'text/html',
+        // body: '''
+        // <h2>Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}</h2>
+        // <p>Check console output at &QUOT;<a href='${env.BUILD_URL'>${env.JOB_NAME} - [${env.BUILD_NUMBER}]</a>&QUOT;</p>
+        // ''',
+        // recipientProviders: [[$class: "FirstFailingBuildSusspectRecipientProvider"]],
+        // subject: "Build# ${env.BUILD_NUMBER} - Job: ${env.JOB_NUMBER} status is: ${currentBuild.currentResult}",
+        // to: "e.amitthakur@gmail.com")
     }
 }
 }
