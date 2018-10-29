@@ -1,5 +1,38 @@
 def getEnvVar(String paramName){
-    return sh (script: "grep '${paramName} env_vars/project.properties|cut -d'=' -f2", returnStdout: true).trim();
+    return sh (script: "grep '${paramName}' env_vars/project.properties|cut -d'=' -f2", returnStdout: true).trim();
+}
+def getTargetEnv(String branchName){
+    def deploy_env = 'none';
+    switch(branchName) {
+        case 'master':
+            deploy_env='uat'
+        break
+        case 'develop':
+            deploy_env = 'dev'
+        default:
+            if(branchName.startsWith('release')){
+                deploy_env='sit'
+            }
+            if(branchName.startsWith('feature')){
+                deploy_env='none'
+            }
+    }
+    return deploy_env
+}
+
+def getImageTag(String currentBranch)
+{
+    def image_tag = 'latest'
+    if(currentBranch==null){
+        image_tag = getEnvVar('IMAGE_TAG')
+    }
+    if(currentBranch=='master'){
+        image_tag= getEnvVar('IMAGE_TAG')
+    }
+    if(currentBranch.startsWith('release')){
+        image_tag = currentBranch.substring(8);
+    }
+    return image_tag
 }
 pipeline{
 
@@ -15,6 +48,8 @@ stages{
             //checkout scm;
         script{
         env.BASE_DIR = pwd()
+        env.CURRENT_BRANCH = env.BRANCH_NAME
+        env.IMAGE_TAG = getImageTag(env.CURRENT_BRANCH)
         env.APP_NAME= getEnvVar('APP_NAME')
         env.PROJECT_NAME=getEnvVar('PROJECT_NAME')
         env.DOCKER_REGISTRY_URL=getEnvVar('DOCKER_REGISTRY_URL')
