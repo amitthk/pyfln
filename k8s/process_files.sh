@@ -6,9 +6,15 @@ if (($# <4))
     exit 1
 fi
 
-main(){
-find $4/*.yml -type f -exec sed -i.bak 's#__PROJECT_NAME__#'$1'#' {} \;
-find $4/*.yml -type f -exec sed -i.bak 's#__APP_NAME__#'$2'#' {} \;
-find $4/*.yml -type f -exec sed -i.bak  's#__IMAGE__#'$3'#' {} \;
-}
+PROJECT_NAME=$1
+APP_NAME=$2
+IMAGE=$3
+WORK_DIR=$4
 
+main(){
+find $WORK_DIR -name *.yml -type f -exec sed -i.bak1 's#__PROJECT_NAME__#'$PROJECT_NAME'#' {} \;
+find $WORK_DIR -name *.yml -type f -exec sed -i.bak2 's#__APP_NAME__#'$APP_NAME'#' {} \;
+find $WORK_DIR -name *.yml -type f -exec sed -i.bak3  's#__IMAGE__#'$IMAGE'#' {} \;
+}
+main
+[centos@ip-172-31-8-89 k8s]$
