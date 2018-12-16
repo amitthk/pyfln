@@ -95,7 +95,7 @@ stages{
     }
     stage('Publish'){
         steps{
-            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "${JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD']])
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "${JENKINS_DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD']])
             {
             sh """
             docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWD} ${DOCKER_REGISTRY_URL} 
