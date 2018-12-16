@@ -61,8 +61,6 @@ stages{
         env.GCLOUD_PROJECT_ID = getEnvVar('GCLOUD_PROJECT_ID')
         env.GCLOUD_K8S_CLUSTER_NAME = getEnvVar('GCLOUD_K8S_CLUSTER_NAME')
         env.JENKINS_GCLOUD_CRED_LOCATION = getEnvVar('JENKINS_GCLOUD_CRED_LOCATION')
-
-        System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "5000");
         }
 
         }
