@@ -95,13 +95,14 @@ stages{
     }
     stage('Publish'){
         steps{
-            withCredentials([usernamePassword(credentialsId: "${JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD')]){
+            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: "${JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD')]])
+            {
             sh """
             docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWD} ${DOCKER_REGISTRY_URL} 
             docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}
             docker logout
             """
-        }
+            }
         }
     }
     stage('Deploy'){
