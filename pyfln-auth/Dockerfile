@@ -37,8 +37,8 @@ USER root
 COPY files /tmp/
 
 RUN groupadd -g 10000 pyflnuser && \
-    useradd --no-log-init -u 10000 -g pyflnuser -ms /bin/bash pyflnuser && \
-    echo '' >> /etc/resolv.conf && echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+    useradd --no-log-init -u 10000 -g pyflnuser -ms /bin/bash pyflnuser
+    # && echo '' >> /etc/resolv.conf && echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     # rm /etc/yum.repos.d/Cen* && \
     # cp /tmp/centos.repo /etc/yum.repos.d/
  #   update-ca-trust force-enable
