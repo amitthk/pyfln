@@ -62,7 +62,7 @@ stages{
         env.GCLOUD_K8S_CLUSTER_NAME = getEnvVar('GCLOUD_K8S_CLUSTER_NAME')
         env.JENKINS_GCLOUD_CRED_LOCATION = getEnvVar('JENKINS_GCLOUD_CRED_LOCATION')
 
-
+        System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "5000");
         }
 
         }
@@ -89,7 +89,6 @@ stages{
     stage('Build-ui'){
         steps{
             withEnv(["APP_NAME=${APP_NAME}", "PROJECT_NAME=${PROJECT_NAME}"]){
-            System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL", "5000");
                 sh '''
                 docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}-ui  -f pyfln-ui/Dockerfile pyfln-ui/.
                 '''
