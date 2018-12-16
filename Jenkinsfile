@@ -56,12 +56,11 @@ stages{
         env.RELEASE_TAG = getEnvVar('RELEASE_TAG')
         env.DOCKER_PROJECT_NAMESPACE = getEnvVar('DOCKER_PROJECT_NAMESPACE')
         env.DOCKER_IMAGE_TAG= "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}:${RELEASE_TAG}"
-        env.JENKINS_DOCKER_CREDENTIALS_ID = getEnvVar('JENKINS_DOCKER_CREDENTIALS_ID')
         env.JENKINS_GCLOUD_CRED_ID = getEnvVar('JENKINS_GCLOUD_CRED_ID')
         env.GCLOUD_PROJECT_ID = getEnvVar('GCLOUD_PROJECT_ID')
         env.GCLOUD_K8S_CLUSTER_NAME = getEnvVar('GCLOUD_K8S_CLUSTER_NAME')
         env.JENKINS_GCLOUD_CRED_LOCATION = getEnvVar('JENKINS_GCLOUD_CRED_LOCATION')
-        env.JENKINS_GCLOUD_CREDENTIAL = getEnvVar('JENKINS_GCLOUD_CREDENTIAL')
+        env.JENKINS_GCLOUD_CREDENTIAL_ID = getEnvVar('JENKINS_GCLOUD_CREDENTIAL_ID')
 
         }
 
@@ -110,10 +109,10 @@ stages{
     }
     stage('Deploy'){
         steps{
-        withCredentials([file(credentialsId: "${JENKINS_GCLOUD_CREDENTIAL}", variable: 'gcloud-cred-json')])
+        withCredentials([file(credentialsId: "${JENKINS_GCLOUD_CRED_ID}", variable: 'JENKINSGCLOUDCREDENTIAL')])
         {
         sh """
-            gcloud auth activate-service-account ${gcloud-cred-json}
+            gcloud auth activate-service-account ${JENKINSGCLOUDCREDENTIAL}
             gcloud config set compute/zone asia-southeast1-a
             gcloud config set compute/region asia-southeast1
             gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
