@@ -1,1 +1,1 @@
-prefix=~/.npm-packages
+prefix=/opt/app-root/src/.npm-global
