@@ -42,7 +42,7 @@ RUN /bin/bash -c "npm run ng build -- --prod" \
     && cp -r ${APP_BUILD_DIR}/dist/ ${APP_BASE_DIR}/ \
     && cp ${APP_BUILD_DIR}/files/entrypoint.sh ${APP_BASE_DIR}/ \
     && chmod -R 0775 $APP_BASE_DIR/ \
-    && chown -R apache:0 $APP_BASE_DIR/ && \
+    && chown -R apache:0 $APP_BASE_DIR/
 
 WORKDIR $APP_BASE_DIR
 USER apache
