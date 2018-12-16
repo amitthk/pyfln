@@ -45,7 +45,7 @@ RUN groupadd -g 10000 pyflnuser && \
 #   mkdir -p ~/.pip && cp /tmp/pip/pip.conf ~/.pip/pip.conf && \
 
 
-RUN yum update && \
+RUN yum -y update && \
   yum downgrade -y glibc glibc-common glibc-devel glibc-headers && \
   yum install -y gcc unzip python-setuptools python-ldap
 
