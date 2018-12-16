@@ -35,7 +35,7 @@ RUN cp ${APP_BUILD_DIR}/files/npm/npmrc ~/.npmrc \
 COPY . ${APP_BUILD_DIR}
 
 RUN cd ${APP_BUILD_DIR} && rm package-lock.json || true \
-    && /bin/bash -c "npm --registry https://registry.npmjs.org/ install --no-optional" \
+    && /bin/bash -c "npm --registry https://registry.npmjs.org/ install --no-optional"
 
 RUN /bin/bash -c "npm run ng build -- --prod" \
     && mkdir -p ${APP_BASE_DIR} \
