@@ -69,7 +69,7 @@ stages{
     stage('Cleanup'){
         steps{
             sh '''
-            docker rmi $(docker images -f 'dangling=true' -q) || true
+            #docker rmi $(docker images -f 'dangling=true' -q) || true
             docker rmi $(docker images | sed 1,2d | awk '{print $3}') || true
             '''
         }
@@ -95,18 +95,18 @@ stages{
     }
     stage('Publish'){
         steps{
-            withCredentials([usernamePassword(credentialsId: "${env.JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD')]){
-            sh '''
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWD ${DOCKER_REGISTRY_URL}
+            withCredentials([usernamePassword(credentialsId: "${JENKINS_DOCKER_CREDENTIALS_ID}", userameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWD')]){
+            sh """
+            docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWD} ${DOCKER_REGISTRY_URL} 
             docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}
             docker logout
-            '''
+            """
         }
         }
     }
     stage('Deploy'){
         steps{
-        sh'''
+        sh """
         gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
         gcloud config set compute/zone asia-southeast1-a
         gcloud config set compute/region asia-southeast1
@@ -127,7 +127,7 @@ stages{
         kubectl create -f ./*.yml
 
         gcloud auth revoke --all
-        '''
+        """
         }
     }
 }
