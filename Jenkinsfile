@@ -71,8 +71,8 @@ stages{
     stage('Cleanup'){
         steps{
             sh '''
-            #docker rmi $(docker images -f 'dangling=true' -q) || true
-            docker rmi $(docker images | sed 1,2d | awk '{print $3}') || true
+            docker rmi $(docker images -f 'dangling=true' -q) || true
+            #docker rmi $(docker images | sed 1,2d | awk '{print $3}') || true
             '''
         }
 
@@ -81,7 +81,7 @@ stages{
         steps{
             withEnv(["APP_NAME=${APP_NAME}", "PROJECT_NAME=${PROJECT_NAME}"]){
                 sh '''
-                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}_authapi  -f pyfln-auth/Dockerfile pyfln-auth/.
+                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_auth:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}_authapi  -f pyfln-auth/Dockerfile pyfln-auth/.
                 '''
             }   
         }
@@ -90,7 +90,7 @@ stages{
         steps{
             withEnv(["APP_NAME=${APP_NAME}", "PROJECT_NAME=${PROJECT_NAME}"]){
                 sh '''
-                docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}-ui  -f pyfln-ui/Dockerfile pyfln-ui/.
+                #docker build -t ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG} --build-arg APP_NAME=${APP_NAME}-ui  -f pyfln-ui/Dockerfile pyfln-ui/.
                 '''
             }   
         }
@@ -101,7 +101,8 @@ stages{
             {
             sh """
             docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWD} ${DOCKER_REGISTRY_URL} 
-            docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}
+            docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_auth:${RELEASE_TAG}
+            #docker push ${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}
             docker logout
             """
             }
@@ -119,14 +120,14 @@ stages{
             
             chmod +x $BASE_DIR/k8s/process_files.sh
 
-            cd $BASE_DIR/k8s/.
+            cd $BASE_DIR/k8s/pyfln-ui
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
             
             cd $BASE_DIR/k8s/pyfln-auth
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
-            cd $BASE_DIR/k8s/pyfln-ui/.
-            kubectl create -f ./*.yml
+            #cd $BASE_DIR/k8s/pyfln-ui/.
+            #kubectl create -f ./*.yml
 
             cd $BASE_DIR/k8s/pyfln-auth/.
             kubectl create -f ./*.yml
