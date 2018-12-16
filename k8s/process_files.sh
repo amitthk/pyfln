@@ -17,4 +17,3 @@ find $WORK_DIR -name *.yml -type f -exec sed -i.bak2 's#__APP_NAME__#'$APP_NAME'
 find $WORK_DIR -name *.yml -type f -exec sed -i.bak3  's#__IMAGE__#'$IMAGE'#' {} \;
 }
 main
-[centos@ip-172-31-8-89 k8s]$
