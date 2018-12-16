@@ -38,11 +38,12 @@ RUN cp ${APP_BUILD_DIR}/files/npm/npmrc ~/.npmrc \
 COPY . ${APP_BUILD_DIR}
 
 RUN cd ${APP_BUILD_DIR} && rm package-lock.json || true \
-    && npm --registry https://registry.npmjs.org/ install --no-optional \
-    && npm --registry https://registry.npmjs.org/ install @angular/cli@1.6.8
+    && npm --registry https://registry.npmjs.org/ install -g npm@latest \
+    && npm --registry https://registry.npmjs.org/ install -g @angular/cli@1.6.8 \
+    && npm --registry https://registry.npmjs.org/ install --no-optional
 
 RUN cd $APP_BUILD_DIR/ \
-    && ng build --prod --verbose \
+    && npm --max_old_space_size=8000 run ng build --prod --verbose --source-map \
     && mkdir -p ${APP_BASE_DIR} \
     && cp -r ${APP_BUILD_DIR}/dist/ ${APP_BASE_DIR}/ \
     && cp ${APP_BUILD_DIR}/files/entrypoint.sh ${APP_BASE_DIR}/ \
