@@ -37,7 +37,7 @@ def getImageTag(String currentBranch)
 pipeline{
 
 environment {
-    GIT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
+    GIT_COMMIT_SHORT_HASH = sh (script: "git rev-parse --short HEAD", returnStdout: true)
 }
 
 agent any
@@ -61,6 +61,8 @@ stages{
         env.GCLOUD_PROJECT_ID = getEnvVar('GCLOUD_PROJECT_ID')
         env.GCLOUD_K8S_CLUSTER_NAME = getEnvVar('GCLOUD_K8S_CLUSTER_NAME')
         env.JENKINS_GCLOUD_CRED_LOCATION = getEnvVar('JENKINS_GCLOUD_CRED_LOCATION')
+        env.JENKINS_GCLOUD_CREDENTIAL = getEnvVar('JENKINS_GCLOUD_CREDENTIAL')
+
         }
 
         }
@@ -107,28 +109,31 @@ stages{
     }
     stage('Deploy'){
         steps{
+        withCredentials([file(credentialsId: "${JENKINS_GCLOUD_CREDENTIAL}", variable: 'gcloud-cred-json')])
+        {
         sh """
-        gcloud auth activate-service-account ${JENKINS_GCLOUD_CRED_LOCATION}
-        gcloud config set compute/zone asia-southeast1-a
-        gcloud config set compute/region asia-southeast1
-        gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
-        
-        chmod +x $BASE_DIR/k8s/process_files.sh
+            gcloud auth activate-service-account ${gcloud-cred-json}
+            gcloud config set compute/zone asia-southeast1-a
+            gcloud config set compute/region asia-southeast1
+            gcloud container clusters get-credentials ${GCLOUD_K8S_CLUSTER_NAME}
+            
+            chmod +x $BASE_DIR/k8s/process_files.sh
 
-        cd $BASE_DIR/k8s/.
-        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
-        
-        cd $BASE_DIR/k8s/pyfln-auth
-        ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
+            cd $BASE_DIR/k8s/.
+            ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
+            
+            cd $BASE_DIR/k8s/pyfln-auth
+            ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
-        cd $BASE_DIR/k8s/pyfln-ui/.
-        kubectl create -f ./*.yml
+            cd $BASE_DIR/k8s/pyfln-ui/.
+            kubectl create -f ./*.yml
 
-        cd $BASE_DIR/k8s/pyfln-auth/.
-        kubectl create -f ./*.yml
+            cd $BASE_DIR/k8s/pyfln-auth/.
+            kubectl create -f ./*.yml
 
-        gcloud auth revoke --all
-        """
+            gcloud auth revoke --all
+            """
+        }
         }
     }
 }
