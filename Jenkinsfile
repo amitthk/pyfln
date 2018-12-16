@@ -120,10 +120,10 @@ stages{
             
             chmod +x $BASE_DIR/k8s/process_files.sh
 
-            cd $BASE_DIR/k8s/pyfln-ui
+            cd $BASE_DIR/k8s/
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
             
-            cd $BASE_DIR/k8s/pyfln-auth
+            cd $BASE_DIR/k8s/
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
             #cd $BASE_DIR/k8s/pyfln-ui/.
