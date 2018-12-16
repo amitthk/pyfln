@@ -3,14 +3,14 @@ kind: Service
 metadata:
   labels:
     app: __APP_NAME__
-  name: __APP_NAME__-svc
+  name: __APP_NAME__-ui-svc
   namespace: __PROJECT_NAME__
 spec:
   ports:
-    - name: __APP_NAME__-port
-      port: 8080
+    - name: __APP_NAME__-ui-port
+      port: 80
       protocol: TCP
-      targetPort: 8080
+      targetPort: 80
   selector:
     app: __APP_NAME__
   sessionAffinity: None
