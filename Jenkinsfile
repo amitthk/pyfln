@@ -124,7 +124,7 @@ stages{
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}"-ui "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_ui:${RELEASE_TAG}" "./pyfln-ui/"
             
             cd $BASE_DIR/k8s/
-            ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
+            ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_auth:${RELEASE_TAG}" "./pyfln-auth/"
 
             #cd $BASE_DIR/k8s/pyfln-ui/.
             #kubectl create -f $BASE_DIR/k8s/pyfln-ui/
