@@ -130,7 +130,7 @@ stages{
             #kubectl create -f $BASE_DIR/k8s/pyfln-ui/
 
             cd $BASE_DIR/k8s/pyfln-auth/.
-            kubectl create -f $BASE_DIR/k8s/pyfln-ui/
+            kubectl apply -f $BASE_DIR/k8s/pyfln-auth/
 
             gcloud auth revoke --all
             """
