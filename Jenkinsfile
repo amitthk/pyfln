@@ -127,10 +127,10 @@ stages{
             ./process_files.sh "$GCLOUD_PROJECT_ID" "${APP_NAME}-auth" "${DOCKER_REGISTRY_URL}/${DOCKER_PROJECT_NAMESPACE}/${APP_NAME}_authapi:${RELEASE_TAG}" "./pyfln-auth/"
 
             #cd $BASE_DIR/k8s/pyfln-ui/.
-            #kubectl create -f ./*.yml
+            #kubectl create -f $BASE_DIR/k8s/pyfln-ui/
 
             cd $BASE_DIR/k8s/pyfln-auth/.
-            kubectl create -f ./*.yml
+            kubectl create -f $BASE_DIR/k8s/pyfln-ui/
 
             gcloud auth revoke --all
             """
