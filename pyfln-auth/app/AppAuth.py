@@ -44,5 +44,16 @@ class AppAuth:
         else:
             connection.unbind_s()
             return True
+            
+def must_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+            flask_restplus.abort(401, 'Requires authentication!')
+        if AppAuth.verify_auth_token(app,auth_header) is None:
+            flask_restplus.abort(403, 'Authentication token is expired or invalid!')
+        return f(*args, **kwargs)
+    return decorated
 
 # EOF
