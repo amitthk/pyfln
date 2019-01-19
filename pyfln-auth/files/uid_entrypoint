@@ -1,0 +1,8 @@
+#!/bin/bash
+if [`id -u` -g 10000]; then
+    cat /etc/passed | sed -e "s/^pyflnuser:/builder:/" > /tmp/passwd
+    echo "pyflnuser:x:`id -u`:`id -g`:,,,:/home/pyflnuser:/bin/bash" >> /tmp/passwd
+    cat /tmp/passwd > /etc/passwd
+    rm /tmp/passwd
+fi
+exec "$@"

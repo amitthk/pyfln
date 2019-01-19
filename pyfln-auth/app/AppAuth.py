@@ -26,19 +26,23 @@ class AppAuth:
         return s.dumps({'payload': data})
 
     @staticmethod
-    def verify_password(username, password):
-        connection = ldap.initialize(current_app.config['LDAP_AUTH_SERVER'])
-        result = connection.search_s(
-            current_app.config['LDAP_TOP_DN'],
+    def verify_password(app, username, password):
+        connection = ldap.initialize(app.config['LDAP_AUTH_SERVER'])
+        try:
+            user_dn = 'uid={},{}'.format(username,app.config['LDAP_TOP_DN'])
+            connection.simple_bind_s(user_dn, password)
+            result = connection.search_s(
+            app.config['LDAP_TOP_DN'],
             ldap.SCOPE_ONELEVEL,
             '(uid={})'.format(username)
             )
-        if not result:
-            print 'User doesn\'t exist'
-            return False
-        dn = result[0][0]
-        try:
-            connection.bind_s(dn, password)
+            if not result:
+                print 'User doesn\'t exist'
+                return None
+            else:
+                dn = result[0]
+                connection.unbind_s()
+                return dn
         except ldap.INVALID_CREDENTIALS:
             return False
         else:

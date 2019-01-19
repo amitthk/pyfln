@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: __APP_NAME__-ui-dc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: __APP_NAME__
+    spec:
+      containers:
+      - name: __APP_NAME__-ui
+        image: >-
+          __IMAGE__
+        ports:
+        - name: pyfln-ui-port
+          containerPort: 8080
+        env:
+          - name: API_ENDPOINT
+            value: "http://pyfln-auth:8080/"

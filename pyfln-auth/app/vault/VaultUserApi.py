@@ -42,7 +42,9 @@ class ReadSecret(Resource):
     def post(self):
         try:
             vaul_helper = VaultHelper()
-            return Response(str(vaul_helper.withdraw_secret(api.payload['userid'], api.payload['pass'], api.payload['keyname'])),status=200)
+            data = vaul_helper.withdraw_secret(ldap_id=api.payload['userid'], ldap_pass= api.payload['pass'], secret_name= api.payload['keyname'])
+            val = data['data']['env']
+            return Response(val,status=200)
         except Exception, exc:
             raise
             return Response("Error reading secret: " + str(exc), status=500)
