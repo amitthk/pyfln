@@ -6,17 +6,18 @@ import ldap
 import ldap.modlist as modlist
 
 class LdapHelper:
-    def __init__():
+    def __init__(self):
         connection = ldap.initialize(current_app.config['LDAP_AUTH_SERVER'])
         self.BIND_DN =current_app.config['BIND_DN']
         self.BIND_PASSWD = current_app.config['BIND_PASSWD']
+        self.BASE_DN = current_app.config['LDAP_TOP_DN']
 
     def verify_password(self, username, password):
         connection = ldap.initialize(current_app.config['LDAP_AUTH_SERVER'])
         try:
-            user_dn = 'uid={},{}'.format(username,current_app.config['LDAP_TOP_DN'])
+            user_dn = 'uid={},{}'.format(username,self.BASE_DN)
             connection.simple_bind_s(user_dn, password)
-            result = connection.search_s(current_app.config['LDAP_TOP_DN'],ldap.SCOPE_ONELEVEL,
+            result = connection.search_s(self.BASE_DN,ldap.SCOPE_ONELEVEL,
             '(uid={})'.format(username))
             if not result:
                 print 'User doesn\'t exist'
@@ -32,41 +33,41 @@ class LdapHelper:
         else:
             return True
     
+    # def add_group(self, model):
+    #     try:
+    #         usr_attr_dict= {}
+    #         usr_attr_dict['objectClass']=[str.encode('top'),str.encode('person'),str.encode('organizationalPerson'),str.encode('user')]
+    #         usr_attr_dict['distinguishedName']
+    #         usr_attr_dict['uid'] = [str.encode(model['username'])]
+    #         usr_attr_dict['givenName'] = [str.encode(model['username'])]
+    #         usr_attr_dict['displayName'] = [str.encode(model['username'])]
+    #         usr_attr_dict['uidNumber'] = [str.encode(model['uid'])]
+    #         usr_attr_dict['gidNumber'] = [str.encode(model['gid'])]
+    #         usr_attr_dict['loginShell'] = [str.encode('/bin/bash')]
+    #         usr_attr_dict['unixHomeDirectory'] = [str.encode('/home/{}'.format(str.encode(model['username'])))]
+    #         user_dn = 'uid={},{}'.format(username,self.BASE_DN)
+    #         connection.simple_bind_s(user_dn, password)
+    #         usr_ldif = modlist.addModList(usr_attr_dict)
+
+    #         connection.add_s(user_dn,usr_ldif)
+    #         return True, "Successfully added."
+    #     except ldap.LDAPError as error_msg:
+    #         print(error_msg)
+    #         return False, error_msg
+    #     finally:
+    #         connection.unbind_s()
+
+
     def add_user(self, model):
         try:
-            usr_attr_dict= {}
-            usr_attr_dict['objectClass']=[str.encode('top'),str.encode('person'),str.encode('organizationalPerson'),str.encode('user')]
-            usr_attr_dict['distinguishedName']
-            usr_attr_dict['uid'] = [str.encode(model['username'])]
-            usr_attr_dict['givenName'] = [str.encode(model['username'])]
-            usr_attr_dict['displayName'] = [str.encode(model['username'])]
-            usr_attr_dict['uidNumber'] = [str.encode(model['uid'])]
-            usr_attr_dict['gidNumber'] = [str.encode(model['gid'])]
-            usr_attr_dict['loginShell'] = [str.encode('/bin/bash')]
-            usr_attr_dict['unixHomeDirectory'] = [str.encode('/home/{}'.format(str.encode(model['username'])))]
-            user_dn = 'uid={},{}'.format(username,current_app.config['LDAP_TOP_DN'])
-            connection.simple_bind_s(user_dn, password)
-            usr_ldif = modlist.addModList(usr_attr_dict)
-
-            connection.add_s(user_dn,usr_ldif)
-            return True, "Successfully added."
-        except ldap.LDAPError as error_msg:
-            print(error_msg)
-            return False, error_msg
-        finally:
-            connection.unbind_s()
-
-
-    def add_group(self, model):
-        try:
             username = model['username']
-            user_dn = 'uid={},{}'.format(username,current_app.config['LDAP_TOP_DN'])
+            user_dn = 'cn={},{}'.format(username,self.BASE_DN)
             user_passwd = model['password']
 
             usr_attr_dict= {}
             usr_attr_dict['objectClass']=[str.encode('top'),str.encode('person'),str.encode('organizationalPerson'),str.encode('user')]
-            usr_attr_dict['distinguishedName']
-            usr_attr_dict['uid'] = [str.encode(model['username'])]
+            usr_attr_dict['distinguishedName']=[str.encode(user_dn)]
+            usr_attr_dict['uid'] = [str.encode(model['uid'])]
             usr_attr_dict['givenName'] = [str.encode(model['username'])]
             usr_attr_dict['displayName'] = [str.encode(model['username'])]
             usr_attr_dict['uidNumber'] = [str.encode(model['uid'])]
@@ -102,7 +103,7 @@ class LdapHelper:
     def list_users(self, model):
         try:
             connection.simple_bind_s(self.BIND_DN, self.BIND_PASSWD)
-            lst_users = connection.search_s(self.BIND_DN, ldap.SCOPE_SUBTREE,'(&(uidNumber=*)(objectClass=person))')
+            lst_users = connection.search_s(self.BASE_DN, ldap.SCOPE_SUBTREE,'(&(uidNumber=*)(objectClass=person))')
             return True, lst_users
         except ldap.LDAPError as error_msg:
             pring(error_msg)
@@ -110,8 +111,7 @@ class LdapHelper:
         finally:
             connection.unbind_s()
 
-    @staticmethod
-    def generate_keytab(principal,password):
+    def generate_keytab(self, principal,password):
         try:
             id_name = userPrincipalName.split('@')[0].replace('/','')
             outp_file_nm = id_name+'.keytab'
