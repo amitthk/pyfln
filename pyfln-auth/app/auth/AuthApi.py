@@ -10,6 +10,7 @@ from flask import Blueprint, request, abort, Response, jsonify, url_for, session
 from flask_restplus import Api, Resource, fields, reqparse
 
 from AppAuth import AppAuth, must_auth
+from .LdapHelper import LdapHelper
 
 DEBUG = True
 
@@ -20,6 +21,13 @@ ns = api.namespace('user',description='Simple Flask Ldap App')
 login_model = api.model("loginmodel", {
     "username": fields.String("Username."),
     "password": fields.String("Password.")
+})
+
+add_user_model = api.model("add_user_model", {
+    "username": fields.String("Username"),
+    "password": fields.String("Password"),
+    "uid": fields.String("uid"),
+    "gid": fields.String("gid")
 })
 
 
@@ -42,6 +50,16 @@ class AuthToken(Resource):
 class Home(Resource):
     method_decorators=[must_auth]
     def get(self):
+        return json.dumps({'payload': ['You','Got','Data']})
+
+@ns.route("/add_user")
+class AddUser(Resource):
+    method_decorators=[must_auth]
+    @api.expect(add_user_model)
+    def post(self):
+        ldaphelper  = LdapHelper()
+        result,status = AppAuth.add_user(api.payload)
+
         return json.dumps({'payload': ['You','Got','Data']})
 
 def auth_response():
