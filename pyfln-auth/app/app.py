@@ -8,8 +8,6 @@ import flask_restplus
 
 from flask import Flask, request, abort, Response, jsonify, url_for, session
 from flask_restplus import Api, Resource, fields, reqparse
-
-from AppAuth import AppAuth, must_auth
 from auth.AuthApi import blueprint as auth_blueprint
 from vault.VaultUserApi import blueprint as vault_user_blueprint
 

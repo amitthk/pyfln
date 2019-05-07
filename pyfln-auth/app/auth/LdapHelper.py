@@ -24,14 +24,11 @@ class LdapHelper:
                 return None
             else:
                 dn = result[0]
-                connection.unbind_s()
                 return dn
         except ldap.INVALID_CREDENTIALS:
             return False
         finally:
             connection.unbind_s()
-        else:
-            return True
     
     # def add_group(self, model):
     #     try:
@@ -65,7 +62,9 @@ class LdapHelper:
             user_passwd = model['password']
 
             usr_attr_dict= {}
-            usr_attr_dict['objectClass']=[str.encode('top'),str.encode('person'),str.encode('organizationalPerson'),str.encode('user')]
+            usr_attr_dict['objectClass']= [str.encode('top'), \
+                str.encode('person') ,str.encode('organizationalPerson'), \
+                    str.encode('user'),str.encode('posixAccount')]
             usr_attr_dict['distinguishedName']=[str.encode(user_dn)]
             usr_attr_dict['uid'] = [str.encode(model['uid'])]
             usr_attr_dict['givenName'] = [str.encode(model['username'])]
@@ -116,7 +115,7 @@ class LdapHelper:
             id_name = userPrincipalName.split('@')[0].replace('/','')
             outp_file_nm = id_name+'.keytab'
 
-            for enc in ['aes256-cts', 'rc4-hmac']
+            for enc in ['aes256-cts', 'rc4-hmac']:
                 call('print "%b" "addent -password -p '+principal+' -k 1 -e ' + enc + '\\n' + password + '\\n' + \
                     '/tmp/' + outp_file_nm + '" | ktutil', shell=True)
             with open('/tmp/'+ outp_file_nm,'rb') as op_ktab:
@@ -125,4 +124,32 @@ class LdapHelper:
             print(excp)
             return False, excp
 
+    def generate_token(self, data, expiration=500):
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'payload': data}).decode('utf-8')
+    
+    def verify_auth_token(self, auth_token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            token = auth_token
+            if auth_token.startswith('Bearer '):
+                token=auth_token[7:]
+            data=s.loads(auth_token)
+        except SignatureExpired:
+            return None
+        except BadSignature:
+            return None
+        return s.dumps({'payload': data})
 
+
+def must_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if auth_header is None:
+            flask_restplus.abort(401, 'Requires authentication!')
+        ldaphelper = LdapHelper()
+        if ldaphelper.verify_auth_token(auth_header) is None:
+            flask_restplus.abort(403, 'Authentication token is expired or invalid!')
+        return f(*args, **kwargs)
+    return decorated

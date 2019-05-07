@@ -9,8 +9,8 @@ import flask_restplus
 from flask import Blueprint, request, abort, Response, jsonify, url_for, session
 from flask_restplus import Api, Resource, fields, reqparse
 
-from AppAuth import AppAuth, must_auth
 from .VaultHelper import VaultHelper
+from auth.LdapHelper import must_auth
 
 DEBUG = True
 

@@ -7,10 +7,11 @@ from functools import wraps
 import flask_restplus
 
 from flask import Blueprint, request, abort, Response, jsonify, url_for, session
+from flask import current_app as app
 from flask_restplus import Api, Resource, fields, reqparse
 
-from AppAuth import AppAuth, must_auth
 from .LdapHelper import LdapHelper
+from .LdapHelper import must_auth
 
 DEBUG = True
 
@@ -39,9 +40,10 @@ class AuthToken(Resource):
         login_m = api.payload
         user = str(login_m['username'])
         passwd = str(login_m['password'])
-        if AppAuth.verify_password(user,passwd):
+        ldaphelper = LdapHelper()
+        if ldaphelper.verify_password(user,passwd):
             session['logged_in'] = True
-            return {'Basic': str(AppAuth.generate_auth_token(app, user))}
+            return {'Basic': str(ldaphelper.generate_token(user))}
         else:
             error = 'Invalid Credentials, please try again later!'
             return auth_response()
@@ -58,7 +60,7 @@ class AddUser(Resource):
     @api.expect(add_user_model)
     def post(self):
         ldaphelper  = LdapHelper()
-        result,status = AppAuth.add_user(api.payload)
+        result,status = ldaphelper.add_user(api.payload)
 
         return json.dumps({'payload': ['You','Got','Data']})
 
