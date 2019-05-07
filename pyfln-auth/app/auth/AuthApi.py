@@ -56,7 +56,7 @@ class Home(Resource):
 
 @ns.route("/add_user")
 class AddUser(Resource):
-    method_decorators=[must_auth]
+    #method_decorators=[must_auth]
     @api.expect(add_user_model)
     def post(self):
         ldaphelper  = LdapHelper()
