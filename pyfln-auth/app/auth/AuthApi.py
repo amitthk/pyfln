@@ -61,8 +61,10 @@ class AddUser(Resource):
     def post(self):
         ldaphelper  = LdapHelper()
         result,status = ldaphelper.add_user(api.payload)
-
-        return json.dumps({'payload': ['You','Got','Data']})
+        if result == True:
+            return json.dumps({'payload': ['User','Was','Added']})
+        else:
+            return json.dumps({'error': str(status)})
 
 def auth_response():
     message = {

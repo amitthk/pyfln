@@ -3,12 +3,14 @@ from functools import wraps
 from flask import Blueprint, current_app, jsonify, Response, request, url_for
 import json
 import ldap, sha, base64
-import ldap.modlist as modlist_n
+import ldap.modlist
 class LdapHelper:
     def __init__(self):
         self.connection = ldap.initialize(current_app.config['LDAP_AUTH_SERVER'])
         self.BIND_DN =current_app.config['BIND_DN']
+        self.ADMIN_DN =current_app.config['ADMIN_DN']
         self.BIND_PASSWD = current_app.config['BIND_PASSWD']
+        self.ADMIN_PASSWD =current_app.config['ADMIN_PASSWD']
         self.BASE_DN = current_app.config['LDAP_TOP_DN']
 
     def verify_password(self, username, password):
@@ -75,26 +77,27 @@ class LdapHelper:
             usr_attr_dict['uidNumber'] = [str(model['uid'])]
             usr_attr_dict['gidNumber'] = [str(model['gid'])]
             usr_attr_dict['loginShell'] = [str('/bin/bash')]
+            usr_attr_dict['userPassword'] = [str(hash)]
             usr_attr_dict['homeDirectory'] = [str('/home/{}'.format(str(model['username'])))]
             #print(str(usr_attr_dict))
 
-            self.connection.simple_bind_s(self.BIND_DN, self.BIND_PASSWD)
-            usr_ldif = modlist_n.addModList(usr_attr_dict)
+            self.connection.simple_bind_s(self.ADMIN_DN, self.ADMIN_PASSWD)
+            usr_ldif = ldap.modlist.addModList(usr_attr_dict)
             self.connection.add_s(user_dn,usr_ldif)
 
-            try:
-                #if it  is a string convert to unicode
-                if isinstance('\"'+user_passwd+'\"',str):
-                    unicode_user_pass = '\"'+user_passwd+'\"'
-                else:
-                    unicode_user_pass = unicode_or_str.decode(iso-8859-1)
-                final_passw = unicode_user_pass.encode('utf-16-le')
-                chpass_ldiff = [(ldap.MOD_REPLACE,'unicodePwd', [final_passw])]
-                self.connection.modify_s(user_dn,final_passw)
-            except:
-                return False, "Error updating password for user!"
+            # try:
+            #     #if it  is a string convert to unicode
+            #     if isinstance('\"'+user_passwd+'\"',str):
+            #         unicode_user_pass = '\"'+user_passwd+'\"'
+            #     else:
+            #         unicode_user_pass = unicode_or_str.decode(iso-8859-1)
+            #     final_passw = unicode_user_pass.encode('utf-16-le')
+            #     chpass_ldiff = [(ldap.MOD_REPLACE,'unicodePwd', [final_passw])]
+            #     self.connection.modify_s(user_dn,final_passw)
+            # except:
+            #     return False, "Error updating password for user!"
 
-            self.connection.modify_s(user_dn,user_passwd)
+            # self.connection.modify_s(user_dn,user_passwd)
 
             return True, "Successfully added."
         except ldap.LDAPError as error_msg:
