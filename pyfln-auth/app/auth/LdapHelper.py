@@ -4,6 +4,7 @@ from flask import Blueprint, current_app, jsonify, Response, request, url_for
 import json
 import ldap, sha, base64
 import ldap.modlist
+from .Util import Util
 class LdapHelper:
     def __init__(self):
         self.connection = ldap.initialize(current_app.config['LDAP_AUTH_SERVER'])
@@ -66,23 +67,8 @@ class LdapHelper:
             ctx = sha.new(str(model['password'])) 
             hash = "{SHA}" + base64.b64encode(ctx.digest())
 
+            usr_ldif = Util.get_ldif(model,self.BASE_DN,self.ADMIN_DN,self.ADMIN_PASSWD)
 
-
-            usr_attr_dict= {}
-            usr_attr_dict['objectClass']= [str('top'),str('person') ,str('organizationalPerson'),str('user'),str('posixAccount')]
-            usr_attr_dict['distinguishedName']=[str(user_dn)]
-            usr_attr_dict['uid'] = [model['username'].encode('ascii')]
-            usr_attr_dict['givenName'] = [str(model['username'])]
-            usr_attr_dict['displayName'] = [str(model['username'])]
-            usr_attr_dict['uidNumber'] = [str(model['uid'])]
-            usr_attr_dict['gidNumber'] = [str(model['gid'])]
-            usr_attr_dict['loginShell'] = [str('/bin/bash')]
-            usr_attr_dict['userPassword'] = [str(hash)]
-            usr_attr_dict['homeDirectory'] = [str('/home/{}'.format(str(model['username'])))]
-            #print(str(usr_attr_dict))
-
-            self.connection.simple_bind_s(self.ADMIN_DN, self.ADMIN_PASSWD)
-            usr_ldif = ldap.modlist.addModList(usr_attr_dict)
             self.connection.add_s(user_dn,usr_ldif)
 
             # try:
@@ -161,3 +147,4 @@ def must_auth(f):
             flask_restplus.abort(403, 'Authentication token is expired or invalid!')
         return f(*args, **kwargs)
     return decorated
+
